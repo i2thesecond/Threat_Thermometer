@@ -1,0 +1,24 @@
+import nltk
+import csv
+
+
+d = {}
+
+with open('/root/Documents/NLP/Threat_Thermometer/practice/spam/Spams Detection/smsspamcollection/SMSSpamCollection') as file:
+    reader = csv.reader(file, delimiter='\t')
+    for row in reader:
+        (value, key) = (row[1], row[0])
+        print((value,key))
+        d[key] = value
+        print(d)
+
+'''
+d = {} 
+allWords = []
+
+    for line in file:
+        (value, key) = line.rstrip("\n").split('\t')
+        d[key] = value
+        print value[1]
+
+'''

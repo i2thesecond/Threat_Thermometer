@@ -23,4 +23,6 @@ for tweet in get_tweets('cyber', pages=1):
         print('time ', tweet['time'])
         print('tweet ' + tweet['text'] + '\n')
         print('entries ', tweet['entries']['hashtags'])
+        print('\n')
+        print('urls ', tweet['entries']['urls'])
         print('\n\n')
