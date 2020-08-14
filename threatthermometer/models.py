@@ -13,6 +13,13 @@ class ThermometerResults(models.Model):
 	def __str__(self):
 		return str(self.term)
 		
+class MovingAverages(models.Model):
+	term = models.CharField(max_length = 20)
+	current_average = models.IntegerField(default=0)
+	periods = models.IntegerField(default=0)
+	def __str__(self):
+		return str("Moving Average " + self.term + " " + str(self.current_average))
+
 #key		
 class Tweet(models.Model):
 	created_at = models.DateTimeField()
@@ -30,6 +37,12 @@ class Tweet(models.Model):
 class TweetFrequency(models.Model):
 	term = models.CharField(max_length = 20)
 	created_at = models.DateTimeField(auto_now_add=True)
-	frequency = models.IntegerField()
+	frequency = models.IntegerField(default=0)
 	def __str__(self):
 		return str(self.term + " frequency on " + str(self.created_at))
+
+#keeps track of total tweets per analyze.py session. I didn't want to make a seperate table for this but I couldn't think of another way to track the frequency.
+class TwitterFrequency(models.Model):
+	frequency = models.IntegerField(default=0)
+	def __str__(self):
+		return str("Total twitter tweets " + str(self.frequency))

@@ -3,7 +3,7 @@ import django
 import os
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "ThreatThermometer.settings")
 django.setup()
-from threatthermometer.models import Tweet, TweetFrequency, ThermometerResults
+from threatthermometer.models import Tweet, TweetFrequency, ThermometerResults, TwitterFrequency, MovingAverages
 from django.utils import timezone
 import datetime
 
@@ -28,11 +28,17 @@ termsdb = TweetFrequency.objects.values('term').distinct()
 for t in termsdb:
 	term_s = t['term'].strip()
 	if term_s not in termList:
-			TweetFrequency.objects.filter(term=term_s).delete()
-			Tweet.objects.filter(term=term_s).delete()
-			ThermometerResults.objects.filter(term=term_s).delete()
+		TweetFrequency.objects.filter(term=term_s).delete()
+		Tweet.objects.filter(term=term_s).delete()
+		ThermometerResults.objects.filter(term=term_s).delete()
+		MovingAverages.objects.filter(term=term_s).delete()
 
-
+'''
+twitterFreq = TwitterFrequency.objects.all()[0]
+alltwitter = TweetFrequency(term="alltwitter", frequency=twitterFreq)
+alltwitter.save()
+TweetFrequency.objects.all().delete()
+'''
 #count frequency of terms
 totalFreq = 0
 for term in termList:
@@ -48,16 +54,47 @@ for term in termList:
 freqall = TweetFrequency(term="allterms", frequency=totalFreq)
 freqall.save()
 
+
+#calculate moving average
+
 for term in termList:
-	if ThermometerResults.objects.filter(term=term).exists() == True:
-		tweet_result = ThermometerResults.objects.filter(term=term)
+	#create a moving average for the term if doesn't exist
+	if MovingAverages.objects.filter(term=term).exists() == False:
+		MovingAverages(term=term).save()
+	#create a thermometer results for the term if doesn't exist
+	if ThermometerResults.objects.filter(term=term).exists() == False:
+		ThermometerResults(term=term).save()
+	#grab the last moving average
+	moving_average = MovingAverages.objects.filter(term=term)[0]
+	last_average = moving_average.current_average
+	#grab the freq counts
+	tweetFreq = TweetFrequency.objects.filter(term=term).order_by('-created_at')[:1]
+	twitterFreq = TwitterFrequency.objects.all()[0]
+	weightedFreq = tweetFreq.frequency / twitterFreq.frequency
+	#calculate new moving average
+	new_moving_average = (weightedFreq + (last_average * moving_average.periods)) / (moving_average.periods + 1)
+	new_moving_period = (moving_average.periods + 1)
+	#update the moving average
+	moving_average.current_average = new_moving_average
+	moving_average.periods = new_moving_period
+	moving_average.save()
+	
+	tweet_result = ThermometerResults.objects.filter(term=term)[:1]
+	percentage_change =  float(new_moving_average - last_average) / last_average
+	if percentage_change > 1.00:
+		tweet_result.ranking = 4
+	elif percentage_change <= 1.00 and percentage_change > 0.4:
+		tweet_result.ranking = 3
+	elif percentage_change <= 0.40 and percentage_change >= -0.40:
 		tweet_result.ranking = 2
-		tweet_result.update()
-	else:
-		tweet_result = ThermometerResults()
-		tweet_result.term = term
-		tweet_result.ranking = 2
-		tweet_result.save()
+	elif percentage_change < -0.40 and percentage_change >= -1.00:
+		tweet_result.ranking = 1
+	elif percentage_change < -1.00:
+		tweet_result.ranking = 0
+	tweet_result.update()
+
+#clear Twitter Frequency objects
+TwitterFrequency.objects.all().delete()
 
 
 #remove anything older than 7 days

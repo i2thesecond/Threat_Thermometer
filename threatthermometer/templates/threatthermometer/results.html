@@ -85,16 +85,19 @@ $(function() {
 
             new Chart(ctx, {
                 type: 'line',
+                
                 data: {
                     labels: data.labels,
                     datasets: [{
                         label: 'Frequency of Term',
                         backgroundColor: 'blue',
                         data: data.data
+                        
                     }]
                 },
                 options: {
                     responsive: true,
+                    
                     legend: {
                         position: 'top',
                     },

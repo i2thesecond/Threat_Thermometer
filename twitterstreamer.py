@@ -15,7 +15,7 @@ import django
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "ThreatThermometer.settings")
 django.setup()
 # your imports, e.g. Django models
-from threatthermometer.models import Tweet
+from threatthermometer.models import Tweet, TwitterFrequency
 
 
 
@@ -43,8 +43,18 @@ class MyStreamListener(tweepy.StreamListener):
 			return False
 	
 	def on_data(self,data):
-		print("Caught tweet! \n")
+		
 		try:
+			#increment the total twitter frequency table by 1 per each tweet captured
+			if ThermometerResults.objects.all.exists() == False:
+				twitterFreq = TwitterFrequency()
+				twitterFreq.frequency = 1
+				twitterFreq.save()
+			else:
+				twitterFreq = TwitterFrequency.objects.all()[:1]
+				twitterFreq.frequency += 1
+				twitterFreq.update()
+			
 			#create a dictionary type
 			tweet_data = json.loads(data)
 			
@@ -78,7 +88,7 @@ class MyStreamListener(tweepy.StreamListener):
 			#tokenize. unsure how twipper api does the matching, doing so manually
 			tokenized_text = nltk.word_tokenize(tweet.text)
 			tokenized_lower_text = [w.lower() for w in tokenized_text]
-			
+			lower_hashtags = [w.lower() for w in tweet.hashtags]
 			#mark the terms
 			
 			tweet.unique = True
@@ -89,7 +99,15 @@ class MyStreamListener(tweepy.StreamListener):
 						tweet.save()
 						print("Saved Tweet as " + term + "\n")
 						saved = True
-						tweet.unique = False
+						if tweet.unique == True:
+							tweet.unique = False
+				elif (term in lower_hashtags):
+						tweet.term = term
+						tweet.save()
+						print("Saved Tweet as " + term + "\n")
+						saved = True
+						if tweet.unique == True:
+							tweet.unique = False
 			#if saved == False:
 				#IPython.embed()
 				#implement quoted status by making a new model field called 'quoted_status' and 'quoted_text'.
@@ -141,4 +159,4 @@ with open('TermList.txt', 'r') as f:
 
 #write diagram and documents to the whole process. 
 
-myStream.filter(track=filterList, is_async=True)
+myStream.filter(is_async=True)
