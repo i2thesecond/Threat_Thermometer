@@ -18,20 +18,6 @@ django.setup()
 from threatthermometer.models import Tweet
 
 
-# The access tokens can be found on your applications's Details
-# page located at https://dev.twitter.com/apps (located
-# under "Your access token")
-# The consumer keys can be found on your application's Details
-# page located at https://dev.twitter.com/apps (under "OAuth settings")
-consumer_key="Oi1YTWW0YVm2TkM0usgWXny5N"
-consumer_secret="dt26bwam2CtS7UaH2rlBFPeqmzcthvh0cEyCqr170NMMMaYmCZ"
-
-# The access tokens can be found on your applications's Details
-# page located at https://dev.twitter.com/apps (located
-# under "Your access token")
-access_token="1237107322180296705-Pl8u6TIAhtPLCiLUL4fT03xRi9TK8V"
-access_token_secret="O4jXKv3OPL9sbVUVtT41rX1plkwewi8ilgJuJT3t1NjHe"
-
 
 # Tweepy class to access Twitter API
 class MyStreamListener(tweepy.StreamListener):
