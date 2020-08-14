@@ -1,0 +1,21 @@
+{% if results_list %}
+
+<table>
+  <tr>
+	<th>Date</th>
+	<th>Results</th>
+  </tr>
+
+	{% for result in results_list %}
+	  <tr>
+		<td>{{ result.created_at }}</td>
+		<td>{{ result.value }}</td>
+			</tr>
+	{% endfor %}
+
+</table>
+{% else %}
+	<p>No results are available.</p>
+{% endif %}
+
+

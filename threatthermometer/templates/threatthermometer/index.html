@@ -1,0 +1,75 @@
+{% extends 'threatthermometer/base.html' %}
+
+{% block content %}
+
+		<div class="d-flex justify-content-center">
+			<div id="container" style="width: 50%;">
+						
+				<canvas id="result-chart" data-url="{% url 'result-chart' "allterms" %}"></canvas>
+
+			</div>
+		</div>
+		 <script>
+	  // Bar Graph 
+$(function() {
+
+    // variable to change the y-axis labels to own qualitative measurements
+    var yLabels = {
+		0: 'Very Low Risk',
+        1: 'Lower Risk',
+        2: 'Average Risk',
+        3: 'Higher Risk',
+        4: 'Very High Risk'
+    };
+
+    var $resultChart = $("#result-chart");
+    $.ajax({
+        url: $resultChart.data("url"),
+        success: function(data) {
+
+            var ctx = $resultChart[0].getContext("2d");
+
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: data.labels,
+                    datasets: [{
+                        label: 'Risk Alert',
+                        backgroundColor: 'blue',
+                        data: data.data
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    legend: {
+                        position: 'top',
+                    },
+                    title: {
+                        display: true,
+                        text: 'Threat Thermometer'
+                    },
+        scales: {
+            yAxes: [{
+                ticks: {
+                    beginAtZero: true,
+                    min: 0,
+                    max: 4,
+                    callback: function(value, index, values) {
+                        return yLabels[value];
+                    }
+                }
+            }]
+        },
+
+                }
+            });
+
+        }
+    });
+
+});
+
+  </script>
+
+		
+{% endblock %}
