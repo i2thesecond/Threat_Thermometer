@@ -40,9 +40,10 @@ class TweetFrequency(models.Model):
 	frequency = models.IntegerField(default=0)
 	def __str__(self):
 		return str(self.term + " frequency on " + str(self.created_at))
-
+'''
 #keeps track of total tweets per analyze.py session. I didn't want to make a seperate table for this but I couldn't think of another way to track the frequency.
 class TwitterFrequency(models.Model):
 	frequency = models.IntegerField(default=0)
 	def __str__(self):
 		return str("Total twitter tweets " + str(self.frequency))
+'''

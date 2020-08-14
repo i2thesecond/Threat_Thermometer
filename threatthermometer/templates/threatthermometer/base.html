@@ -57,13 +57,13 @@
           <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle" href="http://example.com" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">THREAT &#128065; THERMOMETER</a>
             <div class="dropdown-menu" aria-labelledby="dropdown">
-			{% if term_list %}
-			{% for term in term_list %}
-              <a class="dropdown-item" href="{% url 'results' term.term %}">{{ term.term }}</a>
+
+			
+			{% for link in link_menu %}
+			
+			
+				<a class="dropdown-item" href="{% url 'results' link.term %}"> {{ link.term }}</a>
 			{% endfor %}
-			{% else %}
-			<p>no terms avaliable.</p>
-			{% endif %}
             </div>
           </li>
         </ul>
@@ -76,11 +76,12 @@
    
     <!-- Begin page content -->
     <main role="main" class="container">
+		<div class = "margin-top-md margin-bottom-md">
 
         {% block content %}
             if you see this, something is wrong!
         {% endblock content %}
-
+		</div>
     </main>
     {# The Footer #}
 

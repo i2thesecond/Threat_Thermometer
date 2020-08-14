@@ -2,11 +2,14 @@
 
 {% block content %}
 
-		<div class="d-flex justify-content-center">
-			  <div id="container" style="width: 50%;">
+	<div class="d-flex justify-content-center">
+		<div id="container" style="width: 50%;">
+	<div class="margin-top-md">
     <canvas id="result-chart" data-url="{% url 'result-chart' term %}"></canvas>
-    
+    </div>
+	<div class="margin-top-md">
     <canvas id="frequency-chart" data-url="{% url 'frequency-chart' term %}"></canvas>
+    </div>
   </div>
 
  
@@ -85,11 +88,11 @@ $(function() {
 
             new Chart(ctx, {
                 type: 'line',
-                
                 data: {
                     labels: data.labels,
                     datasets: [{
                         label: 'Frequency of Term',
+                        fill: false,
                         backgroundColor: 'blue',
                         data: data.data
                         
@@ -103,8 +106,24 @@ $(function() {
                     },
                     title: {
                         display: true,
-                        text: 'Threat Thermometer'
+                        text: 'Threat Thermometer',
                     },
+  
+                    scales: {
+						yAxes: [{
+							ticks: {
+								suggestedMin: 0,
+								callback: function (value) { if (Number.isInteger(value)) { return value; } },
+								stepSize: 1,
+							}
+						}],
+						xAxes: [{
+							ticks: {
+								reverse: true,
+								suggestedMin: 0,
+							}
+						}],
+					},
                 }
             });
 

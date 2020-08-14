@@ -9,9 +9,9 @@ from .models import ThermometerResults, TweetFrequency
 
 def index(request):
 	#create a list that holds all the results from Thermometer Results to pass into the index page
-	term_list = ThermometerResults.objects.order_by('term')
-	context = {'term_list': term_list}
-	return render(request, 'threatthermometer/index.html', context)
+	#term_list = ThermometerResults.objects.order_by('term')
+	#context = {'term_list': term_list}
+	return render(request, 'threatthermometer/index.html')
 '''
 def detail(request, question_id):
     question = get_object_or_404(Question, pk=question_id)
@@ -41,7 +41,7 @@ def frequency_chart(request, term):
 	data = []
 	try:
 		#select the first 7 entries (1 per each day).
-		queryset = TweetFrequency.objects.filter(term=term)[:7]
+		queryset = TweetFrequency.objects.filter(term=term).order_by('-created_at')[:7]
 		for entry in queryset:
 			labels.append(entry.created_at.strftime('%Y-%m-%d'))
 			data.append(entry.frequency)

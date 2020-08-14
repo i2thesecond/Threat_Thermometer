@@ -15,17 +15,16 @@ import django
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "ThreatThermometer.settings")
 django.setup()
 # your imports, e.g. Django models
-from threatthermometer.models import Tweet, TwitterFrequency
-
+from threatthermometer.models import Tweet
 
 
 # The access tokens can be found on your applications's Details
 # page located at https://dev.twitter.com/apps (located
 # under "Your access token")
-consumer_key=""
-consumer_secret=""
-access_token=""
-access_token_secret=""
+# The consumer keys can be found on your application's Details
+# page located at https://dev.twitter.com/apps (under "OAuth settings")
+
+
 
 # Tweepy class to access Twitter API
 class MyStreamListener(tweepy.StreamListener):
@@ -37,6 +36,9 @@ class MyStreamListener(tweepy.StreamListener):
 		print("You are connected to the Twitter API")
 
 	def on_error(self, status_code):
+		if status_code == 420:
+			print("Rate limit disconnect")
+			return False
 		if status_code != 200:
 			print("Connection Error")
 			# returning false disconnects the stream
@@ -45,6 +47,7 @@ class MyStreamListener(tweepy.StreamListener):
 	def on_data(self,data):
 		
 		try:
+			'''
 			#increment the total twitter frequency table by 1 per each tweet captured
 			if ThermometerResults.objects.all.exists() == False:
 				twitterFreq = TwitterFrequency()
@@ -54,7 +57,7 @@ class MyStreamListener(tweepy.StreamListener):
 				twitterFreq = TwitterFrequency.objects.all()[:1]
 				twitterFreq.frequency += 1
 				twitterFreq.update()
-			
+			'''
 			#create a dictionary type
 			tweet_data = json.loads(data)
 			
@@ -159,4 +162,4 @@ with open('TermList.txt', 'r') as f:
 
 #write diagram and documents to the whole process. 
 
-myStream.filter(is_async=True)
+myStream.filter(track=filterList, is_async=True)
