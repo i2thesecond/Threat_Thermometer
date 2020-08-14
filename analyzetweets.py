@@ -7,6 +7,11 @@ from threatthermometer.models import Tweet, TweetFrequency, ThermometerResults, 
 from django.utils import timezone
 import datetime
 
+import nltk, re
+from nltk.stem.wordnet import WordNetLemmatizer
+from nltk import word_tokenize
+import json
+
 #analyze process.
 #filter tweets with classifier and model
 
@@ -85,23 +90,77 @@ for term in termList:
 	term_result = 2
 	if last_average != 0:
 		percentage_change =  float(new_moving_average - last_average) / last_average
-		if percentage_change > 1.00:
+		if float(percentage_change) > 0.30:
 			term_result = 4
-		elif percentage_change <= 1.00 and percentage_change > 0.4:
+		elif float(percentage_change) <= 0.30 and float(percentage_change) > 0.10:
 			term_result = 3
-		elif percentage_change <= 0.40 and percentage_change >= -0.40:
+		elif float(percentage_change) <= 0.10 and float(percentage_change) >= -0.10:
 			term_result = 2
-		elif percentage_change < -0.40 and percentage_change >= -1.00:
+		elif float(percentage_change) < -0.10 and float(percentage_change) >= -0.30:
 			term_result = 1
-		elif percentage_change < -1.00:
+		elif float(percentage_change) < -0.30:
 			term_result = 0
-	ThermometerResults.objects.filter(term=term).update(ranking=term_result)
+	update_result = ThermometerResults.objects.filter(term=term).get()
+	update_result.ranking = term_result
+	update_result.save()
+
 
 
 #detect trends associated with the term
 
+#remove url
+allTokens = []
+default_stopwords = set(nltk.corpus.stopwords.words('english'))
+ENGLISH_RE = re.compile(r'[a-z]+')
+
+def processTokens(tokens):
+	# Lowercase all words (default_stopwords are lowercase too)
+	tokens = [word.lower() for word in tokens]
+	# Remove single-character tokens (mostly punctuation)
+	tokens = [word for word in tokens if len(word) > 1]
+	# Remove numbers
+	tokens = [word for word in tokens if not word.isnumeric()]
+	lmtzr = nltk.WordNetLemmatizer()
+	# Save the list between tokens
+	lemmatized = []
+	for word in tokens:
+		# Check english terms
+		if not ENGLISH_RE.match(word):
+			continue
+		# Check stopwords
+		if word in default_stopwords:
+			continue
+		lemmatized.append(lmtzr.lemmatize(word))
+	return lemmatized
+
+for term in termList:
+	if term != "allterms":
+		tweets = Tweet.objects.filter(term=term)
+		termsTweets = []
+		for tweet in tweets:
+			termsTweets.append(tweet.text)
+		tokens = []
+		for tweet in termsTweets:
+			tokens.extend(nltk.word_tokenize(tweet))
+		#returns a frequency distribution
+		tokens = processTokens(tokens)
+		allTokens.extend(tokens)
+		fdist = nltk.FreqDist(tokens)
+		trending = fdist.most_common(10)
+		trending = json.dumps(trending)
+		results = ThermometerResults.objects.filter(term=term).get()
+		results.trending_keywords = trending
+		results.save()
+#then process for allterms
+fdist = nltk.FreqDist(allTokens)
+trending = fdist.most_common(10)
+trending = json.dumps(trending)
+results = ThermometerResults.objects.filter(term="allterms").get()
+results.trending_keywords = trending
+results.save()
 
 
+#option for more classifiers
 
 #remove anything older than 7 days
 current_time = timezone.now()

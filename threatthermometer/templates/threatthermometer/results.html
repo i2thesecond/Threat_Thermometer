@@ -10,6 +10,29 @@
 	<div class="margin-top-md">
     <canvas id="frequency-chart" data-url="{% url 'frequency-chart' term %}"></canvas>
     </div>
+	<div class="margin-top-md">
+
+<table class="table table-hover">
+    <thead>
+        <tr>
+            <th colspan="2">Trending Terms Associated with "{{term}}"</th>
+        </tr>
+    </thead>
+    <tbody>
+		<tr>
+			<td>Keyword</td>
+			<td>Frequency</td>
+		</tr>
+        {% for row in trending %}
+            <tr>
+				<td>{{row.0}}</td>
+				<td>{{row.1}}</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+    </div>
   </div>
 
  

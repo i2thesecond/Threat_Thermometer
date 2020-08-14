@@ -1,5 +1,5 @@
 from django.db import models
-from django.contrib.postgres.fields import ArrayField
+from django.contrib.postgres.fields import ArrayField, JSONField
 from django.core.validators import MaxValueValidator, MinValueValidator
 
 #key
@@ -8,8 +8,9 @@ class ThermometerResults(models.Model):
 	ranking = models.IntegerField(
 		default=2,
 		validators=[MaxValueValidator(4), MinValueValidator(0)]
-     )
+	)
      #add field for "trend keywords", which is essentially just a frequency count
+	trending_keywords = JSONField(default="", blank=True)
 	def __str__(self):
 		return str(self.term)
 		

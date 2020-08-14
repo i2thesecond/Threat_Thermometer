@@ -3,6 +3,8 @@ cybercrime
 cyberterrorist
 hacker
 malware
-ransomware
+ransomeware
 rootkit
 phishing
+infosec
+drovorub
